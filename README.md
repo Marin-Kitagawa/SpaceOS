@@ -29,3 +29,8 @@ c
 layout asm
 info registers
 ```
+
+# A20 Line
+The A20 line is a special line that is used to enable the memory above 1MB. That is, the 21st bit of memory accesses.
+From the newer computers starting from IBM PS/2, the A20 line can be enabled via `Fast A20 Gate` i.e. it doesn't require any delay loops or polling.
+It has just 3 instructions. Of these, `in` and `out` instructions -> reads from and writes to processor bus respectively
