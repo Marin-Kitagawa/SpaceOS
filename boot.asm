@@ -19,7 +19,23 @@ step:
     mov ss, ax
     mov sp, 0x7c00                  ; Stack grows downward
     sti                             ; Set (enable) interrupts
+    
+    ;; See section on Reading from CHS below
+    mov ah, 2                       ; Read Sector Command
+    mov al, 1                       ; One sector to read
+    mov ch, 0                       ; Cylinder lower 8 bits
+    mov cl, 2                       ; Read sector 2
+    mov dh, 0                       ; Head number and DL is already set (automatically)
+    mov bx, buffer                  ; Place to store the data read
+    int 0x13                        ; Read disk interrupt
+    jc error
+    mov si, buffer                  ; Reading the data from the buffer
+    call print
     jmp $
+    
+error:
+    mov si, error_message
+    call print
 print:
     mov bx, 0                       ; For the page number
 .loop:
@@ -37,23 +53,9 @@ print_char:
 
     ret
 
+error_message: db 'Failed to read the sector', 0
+
 times 510-($-$$) db 0
 dw 0xAA55
 
-; This bootloader will somtimes tamper with the data because of the BIOS Parameter Block. Some BIOS will expect this to be present
-; So we create a BIOS Parameter block for jmp short 3C nop. This is required to jump over the disk format information. This is required even in Non-bootable volumes (required as JMP in both Windows and OSX).
-; Without the above jump, BIOS will attempt to load the data that isn't a code
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Reading from CHS (Cylindrical Head Sector)                                                ;;
-;; AH = 02h                                                                                  ;;
-;; AL = number of sectors to read                                                            ;;
-;; CH = low eight bits of cylinder number                                                    ;;
-;; CL = sector number 1-63 (bits 0-5) high two bits of cylinder (bits 6-7, hard disk only)   ;;
-;; DH = head number                                                                          ;;
-;; DL = drive number (bit 7 set for hard disk) drive number choosen automatically.           ;;
-;; ES:BX -> data buffer                                                                      ;;
-;; Returns:                                                                                  ;;
-;; CF (carry flag) set if there is an error or cleared on success                            ;;
-;; If AH = 11h (corrected ECC error) AL = burst length                                       ;;
-;; AH = status and AL = number of sectors transferred                                        ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+buffer:
