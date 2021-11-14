@@ -1,6 +1,7 @@
 ORG 0                               ; ORG 0x7C00  -> if DS:SI has 0x7c0 and 0x7c00 then the address will become 0x7c0*16 + 0x7c00 != `message
 BITS 16
 
+jmp 0x7c0:start                     ; Makes our code segment 0x7c0
 start:
     cli                             ; Clear interrupts 
     mov ax, 0x7c0
