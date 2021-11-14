@@ -72,6 +72,10 @@ load32:                             ; Enters into the 32-bit protected mode. Thi
     mov gs, ax
     mov ebp, 0x00200000
     mov esp, ebp
+    ; Enable the A20 line via Fast A20 Gate
+    in al, 0x92
+    or al, 0x02
+    out 0x92, al
     jmp $                           ; Also, since this can only handle 512 bytes, there will be problems if this gets bigger than 512 bytes.
 
 times 510-($-$$) db 0
