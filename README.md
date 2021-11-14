@@ -5,7 +5,7 @@ Without the above jump, BIOS will attempt to load the data that isn't a code
 
 # Reading from CHS (Cylindrical Head Sector)
 1. `AH` = $02\text{H}$
-2. `AL` = number of sectors to read
+2. `AL = number of sectors to read
 3. `CH` = low eight bits of cylinder number
 4. `CL` = sector number $1-63$ (bits $0-5$) high two bits of cylinder (bits $6-7$, hard disk only)
 5. `DH` = head number
@@ -15,3 +15,17 @@ Without the above jump, BIOS will attempt to load the data that isn't a code
 9. `CF` (carry flag) set if there is an error or cleared on success
 10. If `AH` = $11\text{H}$ (corrected `ECC` error) `AL` = burst length
 11. `AH` = status and AL = number of sectors transferred
+
+# Global Descriptor Table
+1. It must be loaded to enter the Protective Mode
+2. More information can be seen in [OSDEV - Global Descriptor Table](https://wiki.osdev.org/Global_Descriptor_Table)
+
+
+# Debugging using the GNU Debugger (`gdb`)
+```bash
+gdb 
+target remote | qemu-system-x86_64 -hda boot.bin -S -gdb stdio
+c
+layout asm
+info registers
+```
