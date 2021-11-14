@@ -34,3 +34,8 @@ info registers
 The A20 line is a special line that is used to enable the memory above 1MB. That is, the 21st bit of memory accesses.
 From the newer computers starting from IBM PS/2, the A20 line can be enabled via `Fast A20 Gate` i.e. it doesn't require any delay loops or polling.
 It has just 3 instructions. Of these, `in` and `out` instructions -> reads from and writes to processor bus respectively
+
+# Setting up a Cross Compiler
+1. We cannot use `gcc` because it is for Linux. 
+2. Since we are creating our own OS, we need to create a cross-compiler.
+3. The cross-compiled `gcc` will not have standard libraries. This is expected because we are creating our own OS and hence kernel doesn't need support for the standard libraries.
