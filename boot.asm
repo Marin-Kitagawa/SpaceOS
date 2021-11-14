@@ -9,7 +9,7 @@ times 33 db 0                       ; For rest of the BIOS parameter blocks i.e.
 start:
     jmp 0x7c0:step                  ; Makes our code segment 0x7c0
                                     ; For more information on interrupts/exceptions, see https://wiki.osdev.org/Exceptions
-handle_zero:                        ; For handling interrupt 0x00 (official name)
+handle_zero:                        ; For handling interrupt 0x00 (official name); for more information on interrupts, see Ralf Brown's interrupt list
     mov ah, 0eh
     mov al, 'A'
     mov bx, 0x00
