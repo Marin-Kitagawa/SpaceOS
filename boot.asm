@@ -1,7 +1,15 @@
-ORG 0x7C00
+ORG 0                               ; ORG 0x7C00  -> if DS:SI has 0x7c0 and 0x7c00 then the address will become 0x7c0*16 + 0x7c00 != `message
 BITS 16
 
 start:
+    cli                             ; Clear interrupts 
+    mov ax, 0x7c0
+    mov ds, ax                      ; Data segment and Extra Segment cannot be directly populated. They can only be populated via ax
+    mov es, ax
+    mov ax, 00
+    mov ss, ax
+    mov sp, 0x7c00                  ; Stack grows downward
+    sti                             ; Set (enable) interrupts
     mov si, message
     call print
     jmp $
@@ -23,6 +31,5 @@ print_char:
     ret
 
 message: db 'Hello, World!', 0
-
 times 510-($-$$) db 0
 dw 0xAA55
