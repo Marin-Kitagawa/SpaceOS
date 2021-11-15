@@ -30,6 +30,7 @@ step:
     or eax, 1
     mov cr0, eax
     jmp CODE_SEG:load32
+    jmp $
 
 
 ; GDT
@@ -62,23 +63,71 @@ gdt_descriptor:
     dw gdt_end - gdt_start - 1      ; Size of GDT
     dd gdt_start
 
+
 [BITS 32]
-load32:                             ; Enters into the 32-bit protected mode. This means that BIOS can no longer be access from here. Also, we cannot read from the disk too. So, we have to write our own disk driver. 
-    mov ax, DATA_SEG
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    mov fs, ax
-    mov gs, ax
-    mov ebp, 0x00200000
-    mov esp, ebp
-    ; Enable the A20 line via Fast A20 Gate
-    in al, 0x92
-    or al, 0x02
-    out 0x92, al
-    jmp $                           ; Also, since this can only handle 512 bytes, there will be problems if this gets bigger than 512 bytes.
+load32:                             ; Loading the Kernel into memory
+    mov eax, 1                      ; The starting sector to load. It starts from 1 and not 0 because 0 is the boot sector
+    mov ecx, 100                    ; Number of sectors to load
+    mov edi, 0x0100000              ; 1iMB offset. This is the address where the kernel will be loaded
+    call ata_lba_read               ; Load the kernel into memory. LBA = Logical Block Address.
+    jmp CODE_SEG:0x0100000
+
+ata_lba_read:                     ; LBA -> 32-bits
+    mov ebx, eax                  ; Backup the LBA
+    shr eax, 24                   ; Send the highest 8 bits of the LBA to the hard disk controller. i.e. Shifting to the right by 24 bits = having the highest 8 bits of the LBA
+    or eax, 0xe0                  ; Select the master drive
+    mov dx, 0x1f6                 ; Port for ATA controller
+    out dx, al                    ; Sending complete; `out` -> processor bus
+    
+    ; Send the total sectors to read
+    mov eax, ecx
+    mov dx, 0x1f2
+    out dx, al
+    ; Finished sending the total sectors to read
+    
+    ; Send more bits of the LBA
+    mov eax, ebx                   ; Restore the backed-up LBA
+    mov dx, 0x1f3
+    out dx, al
+    ; Finished sneding more bits of the LBA
+    
+    ; Send more bits of the LBA
+    mov dx, 0x1f4                  ; Send the command to the controller
+    mov eax, ebx                   ; Restore the backed-up LBA. (Not necessary but in case of any edits above that might corrupt the backup LBA)
+    shr eax, 8
+    out dx, al
+    ; Finished sending more bits of the LBA
+    
+    ; Send upper 16 bits of the LBA
+    mov dx, 0x1f5
+    mov eax, ebx
+    shr eax, 16
+    out dx, al
+    ; Finished sending upper 16 bits of the LBA
+    
+    mov dx, 0x1f7
+    mov al, 0x20
+    out dx, al
+    
+    ; Read all sectors into memory
+.next_sector:
+    push ecx
+    
+    ; Check if the drive is ready
+.retry:
+    mov dx, 0x1f7
+    in al, dx
+    test al, 8
+    jz .retry
+    
+    ; Read 256 words at a time
+    mov ecx, 0x100                  ; Number of words to read (256 words = 512 bytes = 1 sector)
+    mov dx, 0x1f0
+    rep insw                        ; Read input word from the IO port specified by the `dx` and store it in the address mentioned by ES:(E)DI register
+    pop ecx                         ; We pushed `ecx` which is the number of sectors to read. And here, we restore it
+    loop .next_sector               ; Loop back to the start of the loop. It autodecrements the value of `ecx` and if it is 0, it will exit the loop.
+    ; End of reading sectors into memory
+    ret
 
 times 510-($-$$) db 0
 dw 0xAA55
-
-buffer:
