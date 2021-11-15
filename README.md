@@ -39,3 +39,25 @@ It has just 3 instructions. Of these, `in` and `out` instructions -> reads from 
 1. We cannot use `gcc` because it is for Linux. 
 2. Since we are creating our own OS, we need to create a cross-compiler.
 3. The cross-compiled `gcc` will not have standard libraries. This is expected because we are creating our own OS and hence kernel doesn't need support for the standard libraries.
+
+# Loading the 32-bit Kernel into the Memory
+## Writing the `linkerscript`
+1. The kernel is basic at the start. So, we output the file in `binary` format.
+2. Due to this, we need not load headers
+3. The kernel cannot read files at this point.
+
+## Writing a disk driver to load the kernel
+1. For this we want to write a driver for the kernel to be loaded into memory.
+2. For more info, see [OSDEV - ATA PIO Mode](https://wiki.osdev.org/ATA_PIO_Mode) and [OSDEV - ATA Read/Write Sectors](https://wiki.osdev.org/ATA_read/write_sectors)
+
+## Verifying if the `os.bin` is loaded perfectly
+```bash
+gdb
+add-symbol-file ./build/kernelfull.o 0x100000 # Address to load from
+break _start
+target remote | qemu-system-x86_64 -hda o s.bin -S -gdb stdio
+# You will hit the breakpoint `_start` which you declared globally inside `kernel.asm` 
+layout asm
+# info registers
+stepi  # Step into the `_start` function and execute the code (asm) one by one
+```
