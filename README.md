@@ -5,7 +5,7 @@ Without the above jump, BIOS will attempt to load the data that isn't a code
 
 # Reading from CHS (Cylindrical Head Sector)
 1. `AH` = $02\text{H}$
-2. `AL = number of sectors to read
+2. `AL` = number of sectors to read
 3. `CH` = low eight bits of cylinder number
 4. `CL` = sector number $1-63$ (bits $0-5$) high two bits of cylinder (bits $6-7$, hard disk only)
 5. `DH` = head number
