@@ -19,10 +19,15 @@ void terminal_initalize() {
 }
 
 void terminal_write(char c, int color) {
-	terminal_putchar(terminal_col, terminal_row, c, color);
-	terminal_col += 1;
-	if(terminal_col >= VGA_WIDTH) {
-		terminal_col = 0;
+	if(c == '\n') {
 		terminal_row += 1;
+		terminal_col = 0;
+	} else {
+		terminal_putchar(terminal_col, terminal_row, c, color);
+		terminal_col += 1;
+		if(terminal_col >= VGA_WIDTH) {
+			terminal_col = 0;
+			terminal_row += 1;
+		}
 	}
 }
