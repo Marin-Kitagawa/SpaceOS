@@ -1,6 +1,8 @@
 [BITS 32]
 global _start
 
+extern kernel_main
+
 CODE_SEG equ 0x08
 DATA_SEG equ 0x10
 
@@ -17,4 +19,5 @@ _start:                             ; Enters into the 32-bit protected mode. Thi
     in al, 0x92
     or al, 0x02
     out 0x92, al
+    call kernel_main               ; Calling the function `kernel_main()` from `kernel.c`
     jmp $                           ; Also, since this can only handle 512 bytes, there will be problems if this gets bigger than 512 bytes.
