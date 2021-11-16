@@ -61,3 +61,19 @@ layout asm
 # info registers
 stepi  # Step into the `_start` function and execute the code (asm) one by one
 ```
+
+# Fixing the alignment issue
+## Creating a separate section in the `linkerscript`
+1. Section for assembly files -> to fix the alignment issue
+2. Because all the `C` code in the `.text` section is aligned to 4 bytes ?
+3. So, there will be no alignment issue with the assembly files.
+4. This is required because the output format is `binary`
+5. Also, the assembly section here is the last one and hence it must cross all the other sections above and hence the alignment cannot be altered
+6. But we cannot use the assembly section in the `kernel.asm` file because the format is binary and hence it is important that this file is always the first one to be linked.
+7. By ensuring $\#6$, when we jump to `0x0100000`, it will be `kernel.asm` and not `C` code.
+8. From this `kernel.asm` file, we will jump to the `C` code.
+9. But, in the `Makefile`, we have `C` object files created before this. Thus, then `kernel.asm` will not be the first one to run
+10. The assembly section will be at the end of the `linkerscript`
+11. If we don't have the assembly section at the back, then, it might damage the alignment.
+12. To get around it, we use the `times 512-($-$$) db 0` and $512\equiv 0\hspace{1mm}(\text{mod } 16)$
+13. We can align each section by using `ALIGN(x)` next to the label
