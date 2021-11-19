@@ -21,3 +21,6 @@ _start:                             ; Enters into the 32-bit protected mode. Thi
     out 0x92, al
     call kernel_main               ; Calling the function `kernel_main()` from `kernel.c`
     jmp $                           ; Also, since this can only handle 512 bytes, there will be problems if this gets bigger than 512 bytes.
+
+
+times 512-($ - $$) db 0
