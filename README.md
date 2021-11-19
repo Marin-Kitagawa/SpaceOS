@@ -77,3 +77,10 @@ stepi  # Step into the `_start` function and execute the code (asm) one by one
 11. If we don't have the assembly section at the back, then, it might damage the alignment.
 12. To get around it, we use the `times 512-($-$$) db 0` and $512\equiv 0\hspace{1mm}(\text{mod } 16)$
 13. We can align each section by using `ALIGN(x)` next to the label
+
+
+# Interrupt Descriptor Table
+1. This is similar to the Interrupt Vector Table (IVT)
+2. IVT is for the real mode while IDT is for the protected mode
+3. In `idt.c`, we need to create our own `memset` function because it is not available yet.
+4. More information can be found at [OSDEV - Interrupt Descriptor Table][https://wiki.osdev.org/Interrupt_Descriptor_Table]
