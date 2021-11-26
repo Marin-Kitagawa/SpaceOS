@@ -24,7 +24,6 @@ void idt_init() {
 	idtr_descriptor.limit = sizeof(idt_descriptors) - 1;
 	idtr_descriptor.base = (uint32_t) idt_descriptors;
 
-	idt_set(0, idt_zero);		// Associate a particular interrupt number with a function
 	// Load the IDT
 	idt_load(&idtr_descriptor);
 }
