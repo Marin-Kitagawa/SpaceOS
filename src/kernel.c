@@ -2,6 +2,7 @@
 #include<stdint.h>
 #include<stddef.h>
 #include<idt/idt.h>
+#include<io/io.h>
 
 
 uint16_t* video_memory = 0;
@@ -55,9 +56,11 @@ void print(char* str) {
 
 void kernel_main() {
 	terminal_initalize();
-	print("MEGHA AKASH");
+	print("Welcome to SpaceOS!");
 
 	// Initialize the IDT
 	idt_init();
+
+	outb(0x60, 0xff);
 
 }
