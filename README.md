@@ -84,3 +84,16 @@ stepi  # Step into the `_start` function and execute the code (asm) one by one
 2. IVT is for the real mode while IDT is for the protected mode
 3. In `idt.c`, we need to create our own `memset` function because it is not available yet.
 4. More information can be found at [OSDEV - Interrupt Descriptor Table][https://wiki.osdev.org/Interrupt_Descriptor_Table]
+
+# IO Functions
+1. Using the Intel's `IN` and `OUT` functions
+2. Exported globally to be used in `kernel.c`
+```bash
+gdb
+add-symbol-file ./build/kernelfull.o 0x100000
+break kernel.c:<line_number_for_outb_instruction_in_kernel.c>
+layout asm
+stepi		# Press return for sometimes until `outb` is executed
+print $eax	# $eax contains the data
+print $edx	# $edx contains the port number
+```
